@@ -1,29 +1,5 @@
-
-const express = require('express');
-const connectDB = require('./config/database');
-require('dotenv').config()
-const app = express();
-const parser = require('body-parser');
-const bookRouter = require('./routes/books.routes');
-const userRouter = require('./routes/user.routes');
+// index.js
 const serverlessExpress = require('@vendia/serverless-express');
-
-
-connectDB(process.env.DB_URI);
-
-app.use(parser.json());
-app.use('/book', bookRouter);
-app.use('/user', userRouter);
-
-
-
-// app.listen(3001, (err) => {
-//     if (err) {
-//         console.error('Server error:', err);
-//     } else {
-//         console.log(`Server is running on port 3001....`);
-
-//     }
-// });
+const app = require('./app');
 
 module.exports = serverlessExpress({ app });
