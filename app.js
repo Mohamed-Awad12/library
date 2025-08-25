@@ -17,4 +17,9 @@ app.use(parser.json());
 app.use('/book', bookRouter);
 app.use('/user', userRouter);
 
+// health
+app.get('/', (req, res) => {
+    res.send('OK');
+});
+
 module.exports = app;
