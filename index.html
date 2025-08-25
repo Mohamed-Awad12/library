@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --panel: #121a2b;
+            --card: #151f34;
+            --muted: #8aa0c2;
+            --text: #e8eefb;
+            --accent: #6aa9ff;
+            --accent-2: #22d3ee;
+            --danger: #ef4444;
+            --warning: #eab308;
+            --success: #22c55e;
+            --border: #22304a;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: linear-gradient(180deg, #0b1220, #0b1220 60%, #0e1629); color: var(--text); }
+        a { color: var(--accent); text-decoration: none; }
+        header { position: sticky; top: 0; z-index: 10; background: rgba(10,16,30,.7); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand .logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 10px; box-shadow: 0 6px 20px rgba(34,211,238,.2); }
+        .brand h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
+        nav { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tabs { display: flex; gap: 8px; }
+        .tab { padding: 8px 12px; border: 1px solid var(--border); background: #0f1729; color: var(--muted); border-radius: 8px; cursor: pointer; transition: .15s ease; }
+        .tab:hover { color: var(--text); border-color: #2a3a5a; }
+        .tab.active { background: linear-gradient(180deg, #15203a, #0f1729); color: var(--text); border-color: #34507c; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02), 0 6px 18px rgba(6,12,23,.35); }
+        .shell { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 16px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .card { border: 1px solid var(--border); background: linear-gradient(180deg, #0e1526, #0c1424); border-radius: 12px; padding: 16px; box-shadow: 0 6px 24px rgba(6,12,23,.35); }
+        .card h3 { margin-top: 0; }
+        .muted { color: var(--muted); }
+        label { display: block; font-weight: 600; margin-top: 8px; color: #c7d6f4; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+        input, select { width: 100%; padding: 10px 12px; background: #0b1324; border: 1px solid #1e2a46; color: var(--text); border-radius: 10px; outline: none; transition: .12s ease; }
+        input:focus { border-color: #2b4370; box-shadow: 0 0 0 4px rgba(104,168,255,.08); }
+        button { padding: 10px 14px; border: 1px solid #2c3f63; background: linear-gradient(180deg, #12203d, #0d1831); color: var(--text); border-radius: 10px; cursor: pointer; transition: .12s ease; }
+        button:hover { transform: translateY(-1px); border-color: #3b578a; box-shadow: 0 6px 16px rgba(20,48,92,.35); }
+        .btn-accent { border-color: #3066a8; background: linear-gradient(180deg, #17305a, #13294e); }
+        .btn-danger { border-color: #6b1c1c; background: linear-gradient(180deg, #3a1212, #2b0f0f); color: #fecaca; }
+        .btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+        .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .split { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
+        .hidden { display: none; }
+        .pill { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); background: #0f182b; color: var(--muted); }
+        .pill.ok { color: #86efac; border-color: #1c3b2b; background: #0c1a14; }
+        .pill.warn { color: #fed7aa; border-color: #3b2f1c; background: #1a130c; }
+        .list { display: grid; gap: 8px; }
+        .list .item { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: #0b1324; }
+        pre { background: #0a1120; padding: 12px; border-radius: 10px; border: 1px solid var(--border); color: #b9d1ff; max-height: 360px; overflow: auto; }
+        .footer { text-align: center; color: var(--muted); padding: 16px; border-top: 1px solid var(--border); }
+        .right { margin-left: auto; }
+        @media (max-width: 960px) { .split { grid-template-columns: 1fr; } }
+    </style>
+    
+</head>
+<body>
+    <h1>Library</h1>
+
+    <div class="card">
+        <h3>Auth</h3>
+        <label>Email</label>
+        <input id="email" type="email" placeholder="email" />
+        <label>Username <small>(only for register)</small></label>
+        <input id="username" type="text" placeholder="username" />
+        <label>Password</label>
+        <input id="password" type="password" placeholder="password" />
+        <div class="row">
+            <button id="register">Register</button>
+            <button id="login">Login</button>
+        </div>
+        <div>Token: <code id="token">(none)</code></div>
+    </div>
+
+    <div class="card">
+        <h3>Users</h3>
+        <div class="row">
+            <button id="getUsers">GET /user</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Books</h3>
+        <label>Name</label>
+        <input id="bookName" type="text" placeholder="Book name" />
+        <label>Pages</label>
+        <input id="bookPages" type="number" placeholder="Pages" />
+        <div class="row">
+            <button id="publish">POST /book/publish</button>
+            <button id="myBooks">GET /book/myBooks</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Borrow/Return</h3>
+        <label>Book ID</label>
+        <input id="bookId" type="text" placeholder="Mongo ID" />
+        <div class="row">
+            <button id="borrow">POST /book/borrow/:id</button>
+            <button id="return">POST /book/return/:id</button>
+            <button id="history">GET /book/history/:id</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Response</h3>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        const $ = (id) => document.getElementById(id);
+        const out = (data) => { $('output').textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2); };
+        let token = '';
+
+        const headers = () => ({
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        });
+
+        $('register').onclick = async () => {
+            try {
+                const res = await fetch('/user/register', {
+                    method: 'POST',
+                    headers: headers(),
+                    body: JSON.stringify({
+                        email: $('email').value,
+                        username: $('username').value,
+                        password: $('password').value
+                    })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    token = data.token;
+                    $('token').textContent = token.slice(0, 20) + '...';
+                }
+                out(data);
+            } catch (e) { out(String(e)); }
+        };
+
+        $('login').onclick = async () => {
+            try {
+                const res = await fetch('/user/login', {
+                    method: 'POST',
+                    headers: headers(),
+                    body: JSON.stringify({
+                        email: $('email').value,
+                        password: $('password').value
+                    })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    token = data.token;
+                    $('token').textContent = token.slice(0, 20) + '...';
+                }
+                out(data);
+            } catch (e) { out(String(e)); }
+        };
+
+        $('getUsers').onclick = async () => {
+            try {
+                const res = await fetch('/user', { headers: headers() });
+                out(await res.json());
+            } catch (e) { out(String(e)); }
+        };
+
+        $('publish').onclick = async () => {
+            try {
+                const res = await fetch('/book/publish', {
+                    method: 'POST',
+                    headers: headers(),
+                    body: JSON.stringify({
+                        name: $('bookName').value,
+                        pages: Number($('bookPages').value)
+                    })
+                });
+                out(await res.json());
+            } catch (e) { out(String(e)); }
+        };
+
+        $('myBooks').onclick = async () => {
+            try {
+                const res = await fetch('/book/myBooks', { headers: headers() });
+                out(await res.json());
+            } catch (e) { out(String(e)); }
+        };
+
+        $('borrow').onclick = async () => {
+            try {
+                const id = $('bookId').value.trim();
+                const res = await fetch(`/book/borrow/${encodeURIComponent(id)}`, {
+                    method: 'POST',
+                    headers: headers()
+                });
+                out(await res.json());
+            } catch (e) { out(String(e)); }
+        };
+
+        $('return').onclick = async () => {
+            try {
+                const id = $('bookId').value.trim();
+                const res = await fetch(`/book/return/${encodeURIComponent(id)}`, {
+                    method: 'POST',
+                    headers: headers()
+                });
+                out(await res.json());
+            } catch (e) { out(String(e)); }
+        };
+
+        $('history').onclick = async () => {
+            try {
+                const id = $('bookId').value.trim();
+                const res = await fetch(`/book/history/${encodeURIComponent(id)}`, {
+                    headers: headers()
+                });
+                out(await res.json());
+            } catch (e) { out(String(e)); }
+        };
+    </script>
+</body>
+</html>
