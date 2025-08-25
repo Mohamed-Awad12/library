@@ -1,3 +1,4 @@
+
 const express = require('express');
 const connectDB = require('./config/database');
 require('dotenv').config()
@@ -23,3 +24,5 @@ app.listen(3001, (err) => {
 
     }
 });
+
+module.exports = app

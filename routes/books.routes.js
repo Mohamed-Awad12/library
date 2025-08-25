@@ -347,4 +347,5 @@ router.get('/user/current', auth, async (req, res) => {
     }
 });
 
-module.exports = router;
+module.exports = {router};
+
