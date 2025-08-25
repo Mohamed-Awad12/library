@@ -6,6 +6,7 @@ const app = express();
 const parser = require('body-parser');
 const bookRouter = require('./routes/books.routes');
 const userRouter = require('./routes/user.routes');
+const serverlessExpress = require('@vendia/serverless-express');
 
 
 connectDB(process.env.DB_URI);
@@ -25,4 +26,4 @@ app.use('/user', userRouter);
 //     }
 // });
 
-module.exports = app
+module.exports = serverlessExpress({ app });
