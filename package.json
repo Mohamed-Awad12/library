@@ -5,6 +5,7 @@
   "scripts": {},
   "author": "",
   "license": "ISC",
+  "type": "commonjs",
   "description": "",
   "dependencies": {
     "@vendia/serverless-express": "^4.12.6",
