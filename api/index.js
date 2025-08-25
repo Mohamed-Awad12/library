@@ -1,5 +1,5 @@
-// index.js
-const serverlessExpress = require('@vendia/serverless-express');
+// index.js - Vercel Node serverless entry
 const app = require('../app');
 
-module.exports = serverlessExpress({ app });
+// Export the Express app directly for Vercel
+module.exports = app;
