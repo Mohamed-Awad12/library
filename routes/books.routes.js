@@ -111,6 +111,22 @@ router.get('/unpublish/:id',auth,async (req,res)=>{
     }
 })
 
+// Public route for browsing published books (no auth required)
+router.get("/browse", async (req, res) => {
+    try {
+        const books = await Book.find({ isPublished: true });
+        res.send({
+            message: "success",
+            status: 200,
+            books: books
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: "Error fetching books",
+            error: error.message
+        });
+    }
+});
 
 router.get("/", auth, async (req, res) => {
     try {

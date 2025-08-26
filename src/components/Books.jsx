@@ -3,7 +3,7 @@ import { Search, Book, Calendar, User, Filter, ExternalLink } from 'lucide-react
 import { useAuth } from '../hooks/useAuth.jsx';
 
 export default function Books() {
-  const { apiHeaders } = useAuth();
+  const { apiHeaders, token } = useAuth();
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,8 +22,10 @@ export default function Books() {
   const fetchBooks = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/book', {
-        headers: apiHeaders()
+      // Use public browse endpoint if not authenticated, otherwise use authenticated endpoint
+      const endpoint = token ? '/book' : '/book/browse';
+      const response = await fetch(endpoint, {
+        headers: token ? apiHeaders() : { 'Content-Type': 'application/json' }
       });
       
       if (response.ok) {
