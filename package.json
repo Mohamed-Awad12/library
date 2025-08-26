@@ -1,16 +1,19 @@
 {
-  "name": "task1",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "library-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && cp -r dist/* ../public/",
-    "vercel-build": "cd frontend && npm ci && npm run build && cd .. && mkdir -p dist && cp -r frontend/dist/* dist/"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "vercel-build": "vite build"
   },
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "description": "",
   "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.26.0",
+    "lucide-react": "^0.427.0",
     "@vendia/serverless-express": "^4.12.6",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.0",
@@ -18,5 +21,11 @@
     "express": "^4.18.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.1"
   }
 }
+
+
