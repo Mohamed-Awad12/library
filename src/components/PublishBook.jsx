@@ -48,13 +48,13 @@ export default function PublishBook() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage({ text: 'Book published successfully!', type: 'success' });
+        setMessage({ text: 'Book submitted for approval successfully! An admin will review it before publishing.', type: 'success' });
         setFormData({ name: '', pages: '' });
       } else {
-        setMessage({ text: data.message || 'Failed to publish book', type: 'error' });
+        setMessage({ text: data.message || 'Failed to submit book', type: 'error' });
       }
     } catch (error) {
-      setMessage({ text: 'Error publishing book', type: 'error' });
+      setMessage({ text: 'Error submitting book', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -63,8 +63,8 @@ export default function PublishBook() {
   return (
     <div className="publish-page">
       <div className="page-header">
-        <h2>Publish a Book</h2>
-        <p className="muted">Share your book with the library community</p>
+        <h2>Submit a Book for Publication</h2>
+        <p className="muted">Submit your book for admin approval before publication</p>
       </div>
 
       <div className="publish-container">
@@ -74,7 +74,7 @@ export default function PublishBook() {
               <Book />
             </div>
             <h3>Book Details</h3>
-            <p className="muted">Enter the information about your book</p>
+            <p className="muted">Your book will be reviewed by an admin before being published</p>
           </div>
 
           {message.text && (
@@ -123,7 +123,7 @@ export default function PublishBook() {
               disabled={loading}
             >
               <Send size={18} />
-              {loading ? 'Publishing...' : 'Publish Book'}
+              {loading ? 'Submitting...' : 'Submit for Approval'}
             </button>
           </form>
         </div>
@@ -134,7 +134,8 @@ export default function PublishBook() {
             <ul>
               <li>Ensure your book title is accurate and descriptive</li>
               <li>Double-check the page count for accuracy</li>
-              <li>Once published, your book will be available for borrowing</li>
+              <li>Your book will be reviewed by an admin before publication</li>
+              <li>Once approved, your book will be available for borrowing</li>
               <li>You can track who borrows your book from your profile</li>
             </ul>
           </div>

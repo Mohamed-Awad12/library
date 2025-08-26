@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Users, BookOpen, Shield, UserPlus } from 'lucide-react';
+import { CheckCircle, Users, BookOpen, Shield, UserPlus, UserX, Trash2, Ban, RotateCcw } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 
 export default function AdminPanel() {
@@ -53,7 +53,7 @@ export default function AdminPanel() {
       });
       
       if (response.ok) {
-        setMessage({ text: 'Book approved successfully!', type: 'success' });
+        setMessage({ text: 'Book approved and published successfully!', type: 'success' });
         fetchUnpublishedBooks(); // Refresh the list
       } else {
         setMessage({ text: 'Failed to approve book', type: 'error' });
@@ -64,6 +64,8 @@ export default function AdminPanel() {
   };
 
   const makeAdmin = async (userId) => {
+    if (!confirm('Are you sure you want to make this user an admin?')) return;
+    
     try {
       const response = await fetch(`/user/makeAdmin/${userId}`, {
         method: 'PUT',
@@ -78,6 +80,67 @@ export default function AdminPanel() {
       }
     } catch (error) {
       setMessage({ text: 'Error promoting user', type: 'error' });
+    }
+  };
+
+  const blockUser = async (userId) => {
+    if (!confirm('Are you sure you want to block this user?')) return;
+    
+    try {
+      const response = await fetch(`/user/block/${userId}`, {
+        method: 'PUT',
+        headers: apiHeaders()
+      });
+      
+      if (response.ok) {
+        setMessage({ text: 'User blocked successfully!', type: 'success' });
+        fetchUsers(); // Refresh the list
+      } else {
+        setMessage({ text: 'Failed to block user', type: 'error' });
+      }
+    } catch (error) {
+      setMessage({ text: 'Error blocking user', type: 'error' });
+    }
+  };
+
+  const unblockUser = async (userId) => {
+    if (!confirm('Are you sure you want to unblock this user?')) return;
+    
+    try {
+      const response = await fetch(`/user/unblock/${userId}`, {
+        method: 'PUT',
+        headers: apiHeaders()
+      });
+      
+      if (response.ok) {
+        setMessage({ text: 'User unblocked successfully!', type: 'success' });
+        fetchUsers(); // Refresh the list
+      } else {
+        setMessage({ text: 'Failed to unblock user', type: 'error' });
+      }
+    } catch (error) {
+      setMessage({ text: 'Error unblocking user', type: 'error' });
+    }
+  };
+
+  const deleteUser = async (userId) => {
+    if (!confirm('Are you sure you want to delete this user? This will also delete all their books and cannot be undone.')) return;
+    
+    try {
+      const response = await fetch(`/user/delete/${userId}`, {
+        method: 'DELETE',
+        headers: apiHeaders()
+      });
+      
+      if (response.ok) {
+        setMessage({ text: 'User deleted successfully!', type: 'success' });
+        fetchUsers(); // Refresh the list
+      } else {
+        const data = await response.json();
+        setMessage({ text: data.message || 'Failed to delete user', type: 'error' });
+      }
+    } catch (error) {
+      setMessage({ text: 'Error deleting user', type: 'error' });
     }
   };
 
@@ -161,6 +224,7 @@ export default function AdminPanel() {
                   <th>Username</th>
                   <th>Email</th>
                   <th>Admin</th>
+                  <th>Status</th>
                   <th>Joined</th>
                   <th>Actions</th>
                 </tr>
@@ -175,17 +239,54 @@ export default function AdminPanel() {
                         {userItem.isAdmin ? 'Admin' : 'User'}
                       </span>
                     </td>
+                    <td>
+                      <span className={`status ${userItem.isBlocked ? 'blocked' : 'active'}`}>
+                        {userItem.isBlocked ? 'Blocked' : 'Active'}
+                      </span>
+                    </td>
                     <td>{new Date(userItem.createdAt).toLocaleDateString()}</td>
                     <td>
-                      {!userItem.isAdmin && userItem._id !== user.id && (
-                        <button 
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => makeAdmin(userItem._id)}
-                        >
-                          <UserPlus size={14} />
-                          Make Admin
-                        </button>
-                      )}
+                      <div className="admin-actions">
+                        {!userItem.isAdmin && userItem._id !== user.id && (
+                          <button 
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => makeAdmin(userItem._id)}
+                          >
+                            <UserPlus size={14} />
+                            Make Admin
+                          </button>
+                        )}
+                        
+                        {userItem._id !== user.id && (
+                          <>
+                            {userItem.isBlocked ? (
+                              <button 
+                                className="btn btn-success btn-sm"
+                                onClick={() => unblockUser(userItem._id)}
+                              >
+                                <RotateCcw size={14} />
+                                Unblock
+                              </button>
+                            ) : (
+                              <button 
+                                className="btn btn-warning btn-sm"
+                                onClick={() => blockUser(userItem._id)}
+                              >
+                                <Ban size={14} />
+                                Block
+                              </button>
+                            )}
+                            
+                            <button 
+                              className="btn btn-danger btn-sm"
+                              onClick={() => deleteUser(userItem._id)}
+                            >
+                              <Trash2 size={14} />
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

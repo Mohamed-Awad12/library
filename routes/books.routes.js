@@ -14,19 +14,19 @@ router.post('/publish', auth, async (req, res) => {
             name,
             pages,
             history: [],
-            isPublished: true  // Automatically publish the book
+            isPublished: false  // Books start as unpublished, need admin approval
         });
         
         await bookData.save();
         
         res.status(200).send({
-            message: "Book published successfully",
+            message: "Book submitted for approval successfully",
             status: 200,
             book: bookData
         });
     } catch (error) {
         res.status(500).send({
-            message: "Error publishing book",
+            message: "Error submitting book",
             error: error.message
         });
     }

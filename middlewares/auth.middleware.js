@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/user.model');
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
     
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -10,6 +11,17 @@ const auth = (req, res, next) => {
     
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'Mohamed_Awad');
+        
+        // Check if user exists and is not blocked
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return res.status(401).send({ message: 'User not found' });
+        }
+        
+        if (user.isBlocked) {
+            return res.status(403).send({ message: 'Account has been blocked' });
+        }
+        
         req.user = decoded;
         console.log(req.user)
         next();
