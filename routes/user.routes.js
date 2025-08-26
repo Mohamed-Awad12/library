@@ -36,7 +36,7 @@ router.post('/register', async (req, res) => {
         
         const token = jwt.sign(
             { userId: newUser._id, email: newUser.email },
-            'Mohamed_Awad'
+            process.env.JWT_SECRET || 'Mohamed_Awad'
         );
 
         res.status(201).send({
@@ -79,7 +79,7 @@ router.post('/login', async (req, res) => {
         
         const token = jwt.sign(
             { userId: foundUser._id, email: foundUser.email },
-            'Mohamed_Awad'
+            process.env.JWT_SECRET || 'Mohamed_Awad'
         );
 
         res.send({
@@ -123,6 +123,55 @@ router.get('/profile', auth, async (req, res) => {
     } catch (error) {
         res.status(500).send({
             message: 'Error fetching profile',
+            error: error.message
+        });
+    }
+});
+
+router.put('/profile', auth, async (req, res) => {
+    try {
+        const { username, email } = req.body;
+        
+        // Check if email is already taken by another user
+        if (email) {
+            const existingUser = await User.findOne({ 
+                email: email, 
+                _id: { $ne: req.user.userId } 
+            });
+            if (existingUser) {
+                return res.status(400).send({
+                    message: 'Email already taken by another user',
+                    status: 400
+                });
+            }
+        }
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.userId,
+            { username, email },
+            { new: true, select: '-password' }
+        );
+        
+        if (!updatedUser) {
+            return res.status(404).send({
+                message: 'User not found',
+                status: 404
+            });
+        }
+
+        res.send({
+            message: 'Profile updated successfully',
+            status: 200,
+            user: {
+                id: updatedUser._id,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                createdAt: updatedUser.createdAt
+            }
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: 'Error updating profile',
             error: error.message
         });
     }

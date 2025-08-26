@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Book, PlusCircle, User, LogOut } from 'lucide-react';
+import { Home, Book, PlusCircle, User, LogOut, BookOpen, History, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 
 export default function Navbar() {
@@ -23,12 +23,26 @@ export default function Navbar() {
             </NavLink>
             <NavLink to="/books" className="nav-link">
               <Book size={18} />
-              <span>Books</span>
+              <span>Browse Books</span>
+            </NavLink>
+            <NavLink to="/my-books" className="nav-link">
+              <BookOpen size={18} />
+              <span>My Books</span>
             </NavLink>
             <NavLink to="/publish" className="nav-link">
               <PlusCircle size={18} />
               <span>Publish</span>
             </NavLink>
+            <NavLink to="/borrowing-history" className="nav-link">
+              <History size={18} />
+              <span>History</span>
+            </NavLink>
+            {user?.isAdmin && (
+              <NavLink to="/admin" className="nav-link admin-link">
+                <Shield size={18} />
+                <span>Admin</span>
+              </NavLink>
+            )}
             <NavLink to="/profile" className="nav-link">
               <User size={18} />
               <span>Profile</span>

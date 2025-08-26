@@ -6,6 +6,9 @@ import Dashboard from './components/Dashboard';
 import Books from './components/Books';
 import PublishBook from './components/PublishBook';
 import Profile from './components/Profile';
+import MyBooks from './components/MyBooks';
+import BorrowingHistory from './components/BorrowingHistory';
+import AdminPanel from './components/AdminPanel';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -20,6 +23,29 @@ function ProtectedRoute({ children }) {
   }
   
   return isAuthenticated ? children : <Navigate to="/auth" replace />;
+}
+
+function AdminRoute({ children }) {
+  const { isAuthenticated, user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  if (!user?.isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return children;
 }
 
 function PublicRoute({ children }) {
@@ -84,6 +110,30 @@ function AppContent() {
                 <ProtectedRoute>
                   <Profile />
                 </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-books" 
+              element={
+                <ProtectedRoute>
+                  <MyBooks />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/borrowing-history" 
+              element={
+                <ProtectedRoute>
+                  <BorrowingHistory />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <AdminRoute>
+                  <AdminPanel />
+                </AdminRoute>
               } 
             />
             <Route 
