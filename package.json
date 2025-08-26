@@ -2,7 +2,9 @@
   "name": "task1",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build"
+  },
   "author": "",
   "license": "ISC",
   "type": "commonjs",
