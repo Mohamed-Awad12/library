@@ -2,7 +2,10 @@
   "name": "task1",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cp -r dist/* ../public/",
+    "vercel-build": "cd frontend && npm install && npm run build && mkdir -p dist && cp -r frontend/dist/* dist/"
+  },
   "author": "",
   "license": "ISC",
   "type": "commonjs",
