@@ -22,7 +22,8 @@ const auth = async (req, res, next) => {
             return res.status(403).send({ message: 'Account has been blocked' });
         }
         
-        req.user = decoded;
+        // Store the full user object instead of just the decoded token
+        req.user = user;
         console.log(req.user)
         next();
     } catch (error) {

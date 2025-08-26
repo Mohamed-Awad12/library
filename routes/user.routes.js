@@ -110,29 +110,22 @@ router.post('/login', async (req, res) => {
 
 router.get('/profile', auth, async (req, res) => {
     try {
-        const foundUser = await User.findById(req.user.userId, '-password');
-        if (!foundUser) {
-            return res.status(404).send({
-                message: 'User not found',
-                status: 404
-            });
-        }
-
-        res.send({
-            message: 'User profile retrieved successfully',
-            status: 200,
-            user: {
-                id: foundUser._id,
-                username: foundUser.username,
-                email: foundUser.email,
-                createdAt: foundUser.createdAt
-            }
+        // Since req.user now contains the full user object, we can use it directly
+        const userData = {
+            id: req.user._id,
+            username: req.user.username,
+            email: req.user.email,
+            isAdmin: req.user.isAdmin,
+            isBlocked: req.user.isBlocked,
+            createdAt: req.user.createdAt
+        };
+        
+        res.send({ 
+            message: "Profile retrieved successfully", 
+            user: userData 
         });
     } catch (error) {
-        res.status(500).send({
-            message: 'Error fetching profile',
-            error: error.message
-        });
+        res.status(500).send({ message: "Error retrieving profile", error: error.message });
     }
 });
 
@@ -140,56 +133,45 @@ router.put('/profile', auth, async (req, res) => {
     try {
         const { username, email } = req.body;
         
-        // Check if email is already taken by another user
-        if (email) {
+        // Check if email is being changed and already exists
+        if (email !== req.user.email) {
             const existingUser = await User.findOne({ 
-                email: email, 
-                _id: { $ne: req.user.userId } 
+                email: email,
+                _id: { $ne: req.user._id } 
             });
             if (existingUser) {
-                return res.status(400).send({
-                    message: 'Email already taken by another user',
-                    status: 400
-                });
+                return res.status(400).send({ message: 'Email already in use by another user' });
             }
         }
         
         const updatedUser = await User.findByIdAndUpdate(
-            req.user.userId,
+            req.user._id,
             { username, email },
             { new: true, select: '-password' }
         );
-        
-        if (!updatedUser) {
-            return res.status(404).send({
-                message: 'User not found',
-                status: 404
-            });
-        }
 
-        res.send({
-            message: 'Profile updated successfully',
-            status: 200,
-            user: {
-                id: updatedUser._id,
-                username: updatedUser.username,
-                email: updatedUser.email,
-                createdAt: updatedUser.createdAt
-            }
+        const userData = {
+            id: updatedUser._id,
+            username: updatedUser.username,
+            email: updatedUser.email,
+            isAdmin: updatedUser.isAdmin,
+            isBlocked: updatedUser.isBlocked,
+            createdAt: updatedUser.createdAt
+        };
+
+        res.send({ 
+            message: "Profile updated successfully", 
+            user: userData 
         });
     } catch (error) {
-        res.status(500).send({
-            message: 'Error updating profile',
-            error: error.message
-        });
+        res.status(500).send({ message: "Error updating profile", error: error.message });
     }
 });
 
 router.put('/makeAdmin/:id',auth,async(req,res)=>{
         console.log(req.user);
         
-    const foundUser = await User.findById(req.user.userId, '-password');
-    if (foundUser.isAdmin){
+    if (req.user.isAdmin){
         newadmin = await User.updateOne({"_id":req.params.id},{$set:{isAdmin:true}})
         console.log(newadmin)
         newadmin.isAdmin = true
@@ -210,8 +192,7 @@ router.put('/makeAdmin/:id',auth,async(req,res)=>{
 // Add user blocking field to schema first, then add routes
 router.put('/block/:id', auth, async (req, res) => {
     try {
-        const foundUser = await User.findById(req.user.userId, '-password');
-        if (!foundUser.isAdmin) {
+        if (!req.user.isAdmin) {
             return res.status(403).send({
                 message: "Not authorized - Admin access required",
                 status: 403
@@ -246,8 +227,7 @@ router.put('/block/:id', auth, async (req, res) => {
 
 router.put('/unblock/:id', auth, async (req, res) => {
     try {
-        const foundUser = await User.findById(req.user.userId, '-password');
-        if (!foundUser.isAdmin) {
+        if (!req.user.isAdmin) {
             return res.status(403).send({
                 message: "Not authorized - Admin access required",
                 status: 403
@@ -282,8 +262,7 @@ router.put('/unblock/:id', auth, async (req, res) => {
 
 router.delete('/delete/:id', auth, async (req, res) => {
     try {
-        const foundUser = await User.findById(req.user.userId, '-password');
-        if (!foundUser.isAdmin) {
+        if (!req.user.isAdmin) {
             return res.status(403).send({
                 message: "Not authorized - Admin access required",
                 status: 403
@@ -291,7 +270,7 @@ router.delete('/delete/:id', auth, async (req, res) => {
         }
         
         // Prevent admin from deleting themselves
-        if (req.params.id === req.user.userId) {
+        if (req.params.id === req.user._id.toString()) {
             return res.status(400).send({
                 message: "Cannot delete your own account",
                 status: 400
