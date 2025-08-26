@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    apiHeaders: () => apiHeaders(),
+    apiHeaders,
     isAuthenticated: !!token
   };
 

@@ -24,18 +24,26 @@ export default function Books() {
       setLoading(true);
       // Use public browse endpoint if not authenticated, otherwise use authenticated endpoint
       const endpoint = token ? '/book' : '/book/browse';
+      console.log('Fetching books from:', endpoint, 'Token:', !!token);
+      
       const response = await fetch(endpoint, {
         headers: token ? apiHeaders() : { 'Content-Type': 'application/json' }
       });
       
+      console.log('Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Books data:', data);
         setBooks(data.books || []);
       } else {
-        setMessage({ text: 'Failed to fetch books', type: 'error' });
+        const errorData = await response.text();
+        console.error('Error response:', response.status, errorData);
+        setMessage({ text: `Failed to fetch books: ${response.status}`, type: 'error' });
       }
     } catch (error) {
-      setMessage({ text: 'Error fetching books', type: 'error' });
+      console.error('Fetch error:', error);
+      setMessage({ text: `Error fetching books: ${error.message}`, type: 'error' });
     } finally {
       setLoading(false);
     }
