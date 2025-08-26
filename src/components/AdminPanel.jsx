@@ -10,37 +10,57 @@ export default function AdminPanel() {
   const [message, setMessage] = useState({ text: '', type: '' });
 
   useEffect(() => {
+    console.log('AdminPanel mounted, user:', user);
+    console.log('API headers:', apiHeaders());
     fetchUnpublishedBooks();
     fetchUsers();
   }, []);
 
   const fetchUnpublishedBooks = async () => {
+    console.log('Fetching unpublished books...');
     try {
       const response = await fetch('/book/unpublished', {
         headers: apiHeaders()
       });
       
+      console.log('Unpublished books response:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('Unpublished books data:', data);
         setUnpublishedBooks(data.book || []);
+      } else {
+        console.error('Failed to fetch unpublished books:', response.status);
+        const errorData = await response.text();
+        console.error('Error response:', errorData);
+        setMessage({ text: 'Failed to load pending books', type: 'error' });
       }
     } catch (error) {
       console.error('Error fetching unpublished books:', error);
+      setMessage({ text: 'Error loading pending books', type: 'error' });
     }
   };
 
   const fetchUsers = async () => {
+    console.log('Fetching users...');
     try {
       const response = await fetch('/user/', {
         headers: apiHeaders()
       });
       
+      console.log('Users response:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('Users data:', data);
         setUsers(data.users || []);
+      } else {
+        console.error('Failed to fetch users:', response.status);
+        const errorData = await response.text();
+        console.error('Error response:', errorData);
+        setMessage({ text: 'Failed to load users', type: 'error' });
       }
     } catch (error) {
       console.error('Error fetching users:', error);
+      setMessage({ text: 'Error loading users', type: 'error' });
     } finally {
       setLoading(false);
     }

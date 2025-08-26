@@ -5,8 +5,16 @@ const auth = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     try {
+        // Check if user is admin
+        if (!req.user.isAdmin) {
+            return res.status(403).send({ 
+                message: "Not authorized - Admin access required",
+                status: 403
+            });
+        }
+        
         const users = await User.find({}, '-password');
         res.send({ message: "users", users: users });
     } catch (error) {
