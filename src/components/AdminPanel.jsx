@@ -69,6 +69,7 @@ export default function AdminPanel() {
   const approveBook = async (bookId) => {
     try {
       const response = await fetch(`/book/unpublished/${bookId}`, {
+        method: 'PUT',
         headers: apiHeaders()
       });
       

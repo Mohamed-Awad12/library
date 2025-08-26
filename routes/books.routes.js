@@ -31,82 +31,108 @@ router.post('/publish', auth, async (req, res) => {
     }
 });
 
-router.get('/unpublished',auth,async (req,res)=>{
-    if(req.user.isAdmin){
-        try{
-            const bookData = await Book.find({isPublished : false})
-            res.status(200).send({
-            message: "unpulished books retrived",
+router.get('/unpublished', auth, async (req, res) => {
+    try {
+        if (!req.user.isAdmin) {
+            return res.status(403).send({
+                message: "Not authorized - Admin access required",
+                status: 403
+            });
+        }
+        
+        const bookData = await Book.find({isPublished: false});
+        res.status(200).send({
+            message: "Unpublished books retrieved",
             status: 200,
             book: bookData
         });
-        }catch{
-
-        }
+    } catch (error) {
+        res.status(500).send({
+            message: "Error retrieving unpublished books",
+            error: error.message
+        });
     }
-})
+});
 
-router.get('/myBooks',auth,async (req,res)=>{
-     
-  
-        try{
-            const author = await User.findById(req.user._id, '-password');
-            const bookData = await Book.find({author : author.username})
-            console.log(author)
-            res.status(200).send({
-            message: "books retrived",
+router.get('/myBooks', auth, async (req, res) => {
+    try {
+        const bookData = await Book.find({author: req.user.username});
+        console.log(req.user);
+        res.status(200).send({
+            message: "Books retrieved successfully",
             status: 200,
             book: bookData
         });
-        }catch{
-            res.status(500).send({
-            message: "can't retrived",
+    } catch (error) {
+        res.status(500).send({
+            message: "Error retrieving books",
             status: 500,
-            book: bookData
+            error: error.message
         });
-        }
     }
-)
+});
 
-router.get('/unpublished/:id',auth,async (req,res)=>{
-    if(req.user.isAdmin){
-        try{
-             await Book.updateOne({"_id":req.params.id},{$set:{isPublished :true}})
-            res.status(200).send({
-            message: "success",
-            status: 200,
-
+router.put('/unpublished/:id', auth, async (req, res) => {
+    try {
+        if (!req.user.isAdmin) {
+            return res.status(403).send({
+                message: "Not authorized - Admin access required",
+                status: 403
+            });
+        }
+        
+        const result = await Book.updateOne({"_id": req.params.id}, {$set: {isPublished: true}});
+        
+        if (result.matchedCount === 0) {
+            return res.status(404).send({
+                message: "Book not found",
+                status: 404
+            });
+        }
+        
+        res.status(200).send({
+            message: "Book approved and published successfully",
+            status: 200
         });
-        }catch{
-            res.status(500).send({
-            message: "cant publish",
+    } catch (error) {
+        res.status(500).send({
+            message: "Error approving book",
+            error: error.message
+        });
+    }
+});
+
+router.put('/unpublish/:id', auth, async (req, res) => {
+    try {
+        const foundBook = await Book.findById(req.params.id, '-history');
+        
+        if (!foundBook) {
+            return res.status(404).send({
+                message: "Book not found",
+                status: 404
+            });
+        }
+        
+        if (req.user.username !== foundBook.author && !req.user.isAdmin) {
+            return res.status(403).send({
+                message: "Not authorized - You can only unpublish your own books",
+                status: 403
+            });
+        }
+        
+        await Book.updateOne({"_id": req.params.id}, {$set: {isPublished: false}});
+        res.status(200).send({
+            message: "Book unpublished successfully",
+            status: 200
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: "Error unpublishing book",
             status: 500,
-
+            error: error.message
         });
-        }
     }
-})
-
-router.get('/unpublish/:id',auth,async (req,res)=>{
-     const foundUser = await User.findById(req.user._id, '-password');
-     const foundBook = await Book.findById(req.params.id,'-history')
-    if(foundUser.username === foundBook.author){
-        try{
-             await Book.updateOne({"_id":req.params.id},{$set:{isPublished :false}})
-            res.status(200).send({
-            message: "success",
-            status: 200,
-
-        });
-        }catch{
-            res.status(500).send({
-            message: "cant unpublish",
-            status: 500,
-
-        });
-        }
-    }
-})
+});
 
 // Public route for browsing published books (no auth required)
 router.get("/browse", async (req, res) => {
@@ -222,7 +248,7 @@ router.post('/borrow/:id', auth, async (req, res) => {
         book.borrowedAt = new Date();
         
        
-        book.history.push(`Borrowed by user ${req.user._id} at ${new Date()}`);
+        book.history.push(`Borrowed by ${req.user.username} at ${new Date()}`);
         
         await book.save();
         
@@ -265,7 +291,7 @@ router.post('/return/:id', auth, async (req, res) => {
             });
         }
         
-        if (book.borrowedBy.toString() !== req.user._id) {
+        if (book.borrowedBy.toString() !== req.user._id.toString()) {
             return res.status(403).send({
                 message: "You can only return books that you borrowed",
                 status: 403
@@ -277,7 +303,7 @@ router.post('/return/:id', auth, async (req, res) => {
         book.borrowedAt = null;
         
         
-        book.history.push(`Returned by user ${req.user._id} at ${new Date()}`);
+        book.history.push(`Returned by ${req.user.username} at ${new Date()}`);
         
         await book.save();
         

@@ -168,25 +168,37 @@ router.put('/profile', auth, async (req, res) => {
     }
 });
 
-router.put('/makeAdmin/:id',auth,async(req,res)=>{
+router.put('/makeAdmin/:id', auth, async (req, res) => {
+    try {
         console.log(req.user);
         
-    if (req.user.isAdmin){
-        newadmin = await User.updateOne({"_id":req.params.id},{$set:{isAdmin:true}})
-        console.log(newadmin)
-        newadmin.isAdmin = true
+        if (req.user.isAdmin) {
+            const result = await User.updateOne({"_id": req.params.id}, {$set: {isAdmin: true}});
+            console.log(result);
+            
+            if (result.matchedCount === 0) {
+                return res.status(404).send({
+                    message: 'User not found',
+                    status: 404
+                });
+            }
+            
             res.send({
-            message: 'User is admin successfully',
-            status: 200,
-        });
-    }
-    else{
-          res.status(403).send({
-            message: "Not authoraized",
+                message: 'User promoted to admin successfully',
+                status: 200,
+            });
+        } else {
+            res.status(403).send({
+                message: "Not authorized - Admin access required",
+                status: 403
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            message: "Error promoting user to admin",
             error: error.message
         });
     }
-
 });
 
 // Add user blocking field to schema first, then add routes
