@@ -13,19 +13,20 @@ router.post('/publish', auth, async (req, res) => {
             author:foundUser.username,
             name,
             pages,
-            history: []
+            history: [],
+            isPublished: true  // Automatically publish the book
         });
         
         await bookData.save();
         
         res.status(200).send({
-            message: "Book added successfully",
+            message: "Book published successfully",
             status: 200,
             book: bookData
         });
     } catch (error) {
         res.status(500).send({
-            message: "Error adding book",
+            message: "Error publishing book",
             error: error.message
         });
     }
@@ -111,11 +112,18 @@ router.get('/unpublish/:id',auth,async (req,res)=>{
 })
 
 
-router.get("/", async (req, res) => {
-    const foundUser = await User.findById(req.user.userId, '-password');
-    if(foundUser.isAdmin){
+router.get("/", auth, async (req, res) => {
     try {
-        const books = await Book.find();
+        // Return all published books for regular users, all books for admins
+        const foundUser = await User.findById(req.user.userId, '-password');
+        let books;
+        
+        if (foundUser.isAdmin) {
+            books = await Book.find();
+        } else {
+            books = await Book.find({ isPublished: true });
+        }
+        
         res.send({
             message: "success",
             status: 200,
@@ -124,12 +132,6 @@ router.get("/", async (req, res) => {
     } catch (error) {
         res.status(500).send({
             message: "Error fetching books",
-            error: error.message
-        });
-    }}
-    else{
-          res.status(403).send({
-            message: "Not authoraized",
             error: error.message
         });
     }
@@ -342,6 +344,48 @@ router.get('/user/current', auth, async (req, res) => {
     } catch (error) {
         res.status(500).send({
             message: "Error fetching current borrows",
+            error: error.message
+        });
+    }
+});
+
+// Add routes for frontend compatibility
+router.get('/published', auth, async (req, res) => {
+    try {
+        const author = await User.findById(req.user.userId, '-password');
+        const publishedBooks = await Book.find({
+            author: author.username,
+            isPublished: true
+        });
+        
+        res.send({
+            message: "Published books retrieved successfully",
+            status: 200,
+            books: publishedBooks
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: "Error fetching published books",
+            error: error.message
+        });
+    }
+});
+
+router.get('/borrowed', auth, async (req, res) => {
+    try {
+        const borrowedBooks = await Book.find({
+            isBorrowed: true,
+            borrowedBy: req.user.userId
+        }).populate('borrowedBy', 'username email');
+        
+        res.send({
+            message: "Borrowed books retrieved successfully",
+            status: 200,
+            books: borrowedBooks
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: "Error fetching borrowed books",
             error: error.message
         });
     }
