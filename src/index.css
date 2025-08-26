@@ -998,6 +998,35 @@ label {
   color: var(--muted);
 }
 
+.status.active {
+  background: rgba(34,197,94,.1);
+  color: #86efac;
+}
+
+.status.blocked {
+  background: rgba(239,68,68,.1);
+  color: #fca5a5;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-actions .btn {
+  font-size: 12px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-sm {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
 .unauthorized {
   text-align: center;
   padding: 60px 20px;
